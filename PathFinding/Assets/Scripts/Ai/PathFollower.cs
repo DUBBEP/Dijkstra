@@ -1,39 +1,31 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PathFollower : Kinematic
 {
     FollowPath myMoveType;
-    Face myRotateType;
+    LookWhereGoing myRotateType;
 
-    public GameObject[] Targets;
+    public GameObject[] myPath = new GameObject[4];
 
     // Start is called before the first frame update
     void Start()
     {
+        myRotateType = new LookWhereGoing();
+        myRotateType.character = this;
+        myRotateType.target = myTarget;
+
         myMoveType = new FollowPath();
         myMoveType.character = this;
-        myMoveType.pathTargets = Targets;
-        myMoveType.target = Targets[0];
-
-        myRotateType = new Face();
-        myRotateType.character = this;
-        myRotateType.target = Targets[0];
+        //myMoveType.target = myTarget;
+        myMoveType.path = myPath;
     }
 
     // Update is called once per frame
     protected override void Update()
     {
         steeringUpdate = new SteeringOutput();
-        steeringUpdate.linear = myMoveType.getSteering().linear;
-
-        if (myRotateType.target != myMoveType.target)
-        {
-            myRotateType.target = myMoveType.target;
-        }
-
         steeringUpdate.angular = myRotateType.getSteering().angular;
+        steeringUpdate.linear = myMoveType.getSteering().linear;
         base.Update();
     }
 }
