@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class FollowPath : Seek
 {
+    public delegate void RouteCompleted();
+    public static event RouteCompleted OnRouteCompleted;
+
     public GameObject[] path;
 
     // Millington p. 77: The distance along the path to generate the target. Can be
@@ -60,11 +63,17 @@ public class FollowPath : Seek
             if (currentPathIndex > path.Length - 1)
             {
                 currentPathIndex = 0;
+                OnRouteCompleted?.Invoke();
             }
             target = path[currentPathIndex];
         }
 
         // delegate to seek
         return base.getSteering();
+    }
+
+    public void ResetPathIndex()
+    {
+        currentPathIndex = 0;
     }
 }

@@ -3,6 +3,19 @@ using UnityEngine;
 
 public class Graph
 {
+    public enum weightType
+    {
+        onlyDistance,
+        favorDistance,
+        mixWeights,
+        favorHeight,
+        onlyHeight
+    }
+
+    public weightType myWeightType = weightType.mixWeights;
+
+    public Node[] nodes = GameObject.FindObjectsOfType<Node>();
+
     List<Connection> mConnections;
 
     // an array of connections outgoing from the given node
@@ -27,16 +40,48 @@ public class Graph
         //   stuff them in mConnections
         mConnections = new List<Connection>();
 
-        Node[] nodes = GameObject.FindObjectsOfType<Node>();
         foreach (Node fromNode in nodes)
         {
             foreach (Node toNode in fromNode.ConnectsTo)
             {
-                float cost = (toNode.transform.position - fromNode.transform.position).magnitude;
+                float cost = GetWeight(fromNode, toNode);
+                //float cost = (toNode.transform.position - fromNode.transform.position).magnitude;
                 Connection c = new Connection(cost, fromNode, toNode);
                 mConnections.Add(c);
             }
         }
+    }
+
+    private float GetWeight(Node fromNode, Node toNode)
+    {
+        switch (myWeightType)
+        {
+            case weightType.onlyDistance:
+                return (toNode.transform.position - fromNode.transform.position).magnitude;
+            case weightType.onlyHeight:
+                return toNode.GetHeight();
+            case weightType.favorDistance:
+                return (toNode.transform.position - fromNode.transform.position).magnitude + (toNode.GetHeight() / 3);
+            case weightType.favorHeight:
+                return (toNode.transform.position - fromNode.transform.position).magnitude + (toNode.GetHeight() * 3);
+            case weightType.mixWeights:
+                return (toNode.transform.position - fromNode.transform.position).magnitude + (toNode.GetHeight());
+        }
+
+        return (toNode.transform.position - fromNode.transform.position).magnitude;
+    }
+
+    public void RandomizeNodeHeights()
+    {
+        foreach (Node node in nodes)
+        {
+            node.SetRandomHeight();
+        }
+    }
+
+    public Node GetRandomNode()
+    {
+        return nodes[Random.Range(0, nodes.Length)];
     }
 }
 
